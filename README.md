@@ -252,3 +252,282 @@ You already understand **50% of an LLM**.
 ---
 
 🔥 *This project is about mastery, not shortcuts.*
+
+# 🧠 Building an LLM From First Principles
+
+## Day 2 – Tensor Engine & Vectorized Computation
+
+---
+
+## 📌 Day 2 Overview
+
+Day 2 is where we **stop thinking in scalars** and start thinking like an LLM.
+
+Modern language models are not built on loops over numbers.
+They are built on **vectorized tensor operations**.
+
+Today, we lay the foundation for our **own minimal tensor engine** — the computational heart of everything that follows.
+
+---
+
+## 🎯 Day 2 Objectives
+
+By the end of Day 2, you will understand:
+
+* What tensors really are (beyond NumPy definitions)
+* Why vectorization is mandatory, not optional
+* How broadcasting works internally
+* How batching enables scale
+* How a tensor engine maps to real hardware (CPU / SIMD / GPU)
+
+And you will **start implementing** these ideas from scratch.
+
+---
+
+## 🧩 Why We Need a Tensor Engine
+
+An LLM performs operations like:
+
+* Matrix multiplication
+* Element-wise addition / multiplication
+* Reductions (sum, mean)
+* Reshaping and broadcasting
+
+If we rely on black-box libraries too early, we lose:
+
+* Performance intuition
+* Memory awareness
+* Debugging clarity
+
+So we build a **minimal tensor core** ourselves.
+
+Not fast.
+Not fancy.
+But correct and understandable.
+
+---
+
+## 📐 What Is a Tensor (Really)?
+
+A **tensor** is:
+
+> A contiguous block of memory + a shape + a way to index it
+
+Example:
+
+| Concept | Value                |
+| ------- | -------------------- |
+| Data    | `[1, 2, 3, 4, 5, 6]` |
+| Shape   | `(2, 3)`             |
+| Meaning | 2 rows × 3 columns   |
+
+There is **no inherent dimensional magic**.
+Dimensions are an interpretation.
+
+---
+
+## 🔢 Scalars → Vectors → Matrices → Tensors
+
+| Level  | Shape       |
+| ------ | ----------- |
+| Scalar | `()`        |
+| Vector | `(d,)`      |
+| Matrix | `(n, d)`    |
+| Tensor | `(b, n, d)` |
+
+LLMs almost always operate on **3D tensors**:
+
+```
+(batch, sequence_length, embedding_dim)
+```
+
+---
+
+## 🚀 Why Vectorization Matters
+
+### ❌ Scalar Thinking (Slow)
+
+```
+for i in range(n):
+    y[i] = x[i] * w[i]
+```
+
+### ✅ Vectorized Thinking (Fast)
+
+```
+y = x * w
+```
+
+Vectorization:
+
+* Reduces Python overhead
+* Enables SIMD instructions
+* Maps directly to GPUs
+
+> If it’s not vectorized, it doesn’t scale.
+
+---
+
+## 🧠 Mental Model: Data-Parallel Execution
+
+Vectorized code means:
+
+> Apply the **same operation** to **many data points at once**
+
+Hardware executes this via:
+
+* CPU SIMD (AVX / NEON)
+* GPU warps
+* TPU systolic arrays
+
+Your code shape determines hardware efficiency.
+
+---
+
+## 📦 Broadcasting Explained (From First Principles)
+
+Broadcasting allows operations on tensors of different shapes.
+
+Example:
+
+```
+A: (batch, seq, dim)
+b: (dim,)
+
+A + b → (batch, seq, dim)
+```
+
+Rules (simplified):
+
+1. Align dimensions from the right
+2. Dimensions must be equal OR one of them is 1
+3. Size-1 dimensions are virtually expanded
+
+No data is copied.
+Only indexing changes.
+
+---
+
+## 🧪 Broadcasting Intuition
+
+```
+[1, 2, 3]      → (3,)
+[[1,2,3],      → (2,3)
+ [4,5,6]]
+
+Add → each row gets the vector added
+```
+
+This is foundational for:
+
+* Bias addition
+* Layer normalization
+* Attention scores
+
+---
+
+## 🧮 Core Tensor Operations We Need
+
+Minimum viable tensor engine supports:
+
+* Element-wise add / mul
+* Matrix multiplication
+* Reshape
+* Transpose
+* Reduction (sum, mean)
+
+Everything else builds on these.
+
+---
+
+## 🛠️ Day 2 Implementation Plan
+
+Today we implement **Tensor v0**.
+
+### Features
+
+* Backed by Python lists or NumPy arrays
+* Shape tracking
+* Basic operations
+
+### Non-Goals (For Now)
+
+❌ Autograd
+❌ GPU support
+❌ Performance optimization
+
+Correctness first.
+
+---
+
+## 📁 Repository Structure (Updated)
+
+```
+llm-from-scratch/
+├── README.md
+├── docs/
+│   ├── day01-foundations.md
+│   └── day02-tensors.md
+├── tensor/
+│   ├── tensor.py
+│   └── ops.py
+├── experiments/
+└── tests/
+```
+
+---
+
+## 🧠 Systems Insight
+
+Every tensor operation eventually becomes:
+
+* Pointer arithmetic
+* Strided memory access
+* Fused loops
+
+Understanding this lets you:
+
+* Optimize kernels
+* Reduce memory movement
+* Reason about cache efficiency
+
+This is **Systems ML** thinking.
+
+---
+
+## 🧪 Validation Strategy
+
+We validate tensors by:
+
+* Shape assertions
+* Small hand-computed examples
+* Comparing with NumPy outputs
+
+Never trust silent correctness.
+
+---
+
+## 🧠 Day 2 Takeaway
+
+If Day 1 taught *what* LLMs compute,
+
+Day 2 teaches *how* they compute it efficiently.
+
+> Tensors are not abstractions.
+> They are disciplined memory layouts.
+
+---
+
+## ⏭️ Next: Day 3 Preview
+
+**Day 3 – Automatic Differentiation (Backprop from Scratch)**
+
+* Computational graphs
+* Gradient flow
+* Chain rule in code
+* Manual backward passes
+
+---
+
+🔥 *If you can build a tensor engine, you can build an LLM.*
+
